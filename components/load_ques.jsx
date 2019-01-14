@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import AnswerForm from './ans_form';
-import EditAnsForm from './edit_ans'
+import EditAnsForm from './edit_ans';
+import EditQues from './edit_ques';
 
 class LoadQuestion extends Component {
     state = { 
@@ -8,6 +9,7 @@ class LoadQuestion extends Component {
         isQuesLoaded:false,
         isAnsLoaded:false,
         isAnswerClicked:false,
+        isQuesEditClicked:false,
         EditId:0,
         ans:[],
      }
@@ -48,7 +50,7 @@ class LoadQuestion extends Component {
     handleAnswer=()=>{
         this.setState(
             {
-                isAnswerClicked:true,
+                isAnswerClicked:!this.state.isAnswerClicked,
             }
         )
     }
@@ -59,26 +61,26 @@ class LoadQuestion extends Component {
         this.fetchAns(); 
     }
     
-    post_successful=()=>
+    post_successful=(event)=>
     {
-        this.fetchAns();
+        event?this.fetchQues():this.fetchAns();
         this.setState({
             isAnswerClicked:false,
+            isQuesEditClicked:false,
             EditId:0,
         })
-       
     }
 
     onCancel(item){
-        console.log("status ok",item.id);
-        fetch("http://localhost:8080/questions/"+this.props.id+"/answers/"+item.id,{
+        var url = item?"http://localhost:8080/questions/"+this.props.id+"/answers/"+item.id:"http://localhost:8080/questions/"+this.props.id;
+        fetch(url,{
                 method:'DELETE',
             })
             .then((response)=>{
                 if(response.ok)
                 {
-                    alert("     Answer Deleted Successfully!");
-                    this.fetchAns();
+                    item?alert("     Answer Deleted Successfully!"):alert(" Question Deleted Successfully!");
+                    item?this.fetchAns():window.location.reload();
                 }
                 else
                 {
@@ -96,16 +98,32 @@ class LoadQuestion extends Component {
         })
     }
 
+    onQuesEdit()
+    {
+        this.setState({
+            isQuesEditClicked:!this.state.isQuestionEditClicked,
+        });
+    }
+
     render() { 
         if(!this.state.isQuesLoaded&&!this.state.isAnsLoaded)
         {
             return <div style={{fontSize:"30px"}}>Loading....</div>;
         }
         else{
-            const {title,description} = this.state.question;
+            const {title,description,id} = this.state.question;
             return(
                 <div>
                     {title}<br/>{description}<br/>
+                    <button className="badge badge-pill badge-dark m-2" 
+                                    onClick={() =>{this.onQuesEdit()}}>
+                                    Edit
+                    </button>
+                    <button className="badge badge-pill badge-danger m-2" onClick={() => { if (window.confirm('Are you sure you wish to delete this question?')) this.onCancel() } }>
+                                    Delete
+                    </button>
+                    {this.state.isQuesEditClicked?<EditQues id = {id} title ={title} description={description} updateSuccess={this.post_successful}/>:null}
+                    <br/><br/>
                     <br/>Answers<br/>
                     <div>
                     {  

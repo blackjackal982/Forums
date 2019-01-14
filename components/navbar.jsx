@@ -12,7 +12,9 @@ class NavBar extends Component {
         <a className="navbar-light" style={{fontSize:"30px",fontWeight:"bold",color:"aliceblue"}}>FORUMS</a>
         <form className="form-inline">
         <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" style={{fontSize:"20px"}}/>
-
+        <button className="btn btn-danger">
+          Search
+        </button>
         </form>
         </nav>
         </div>

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 
-class PostQues extends Component {
+class EditQues extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            title:"Enter Title",
-          desc: 'Please enter your description here.....'
+            title:this.props.title,
+          desc: this.props.description,
         };
     
         this.handleTitleChange = this.handleTitleChange.bind(this);
@@ -22,15 +22,15 @@ class PostQues extends Component {
       }
     
     handleSubmit(event) {
-        if(this.state.desc!=='Please enter your description here.....' && this.state.title!=="Enter Title")
+        if(this.state.desc!=='' && this.state.title!=="")
         {
             event.preventDefault();
             let data ={
                 title:this.state.title,
                 description:this.state.desc,
             }
-            fetch("http://localhost:8080/questions",{
-                method:'POST',
+            fetch("http://localhost:8080/questions/"+this.props.id,{
+                method:'PUT',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -42,11 +42,11 @@ class PostQues extends Component {
                 if(response.ok)
                 {
                     alert("Question Submitted Successfully!");
-                    return response.json();
+                    this.props.updateSuccess(true);
                 }
                 else
                 {
-                    alert("Error occurred!Please Try Again Later");
+                    alert("Error Occured !\nPlease Try Again Later");
                 }
             })
             .catch(error => console.log(error));
@@ -58,20 +58,19 @@ class PostQues extends Component {
             event.preventDefault();
         }
     }
-
     render() { 
         return ( 
             <div>
             <form>
             <span className="container">
-                <input className="form-control mr-sm-2 m-2" type="text"  placeholder={this.state.title}  onChange={this.handleTitleChange}/>
-                <textarea className="form-control mr-sm-2 m-2" placeholder={this.state.desc} onChange={this.handleChange} style={{height:200}} /><br/>
+                <input className="form-control mr-sm-2 m-2" type="text"  value={this.state.title}  onChange={this.handleTitleChange}/>
+                <textarea className="form-control mr-sm-2 m-2" value={this.state.desc} onChange={this.handleChange} style={{height:200}} /><br/>
                 <button className="btn btn-info sm-2 m-2" onClick={this.handleSubmit}>Submit</button>
                 </span>
             </form>
             </div>
-        );
+         );
     }
 }
  
-export default PostQues;
+export default EditQues;
