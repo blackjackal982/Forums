@@ -1,35 +1,28 @@
 import React, { Component } from 'react';
 
-class PostQues extends Component {
+class AnswerForm extends Component {
+
     constructor(props) {
         super(props);
         this.state = {
-            title:"Enter Title",
-          desc: 'Please enter your description here.....'
+          text: 'Please enter your answer here.....'
         };
-    
-        this.handleTitleChange = this.handleTitleChange.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
       }
-    
-    handleTitleChange(event){
-        this.setState({title:event.target.value});
-    }
-    
+
     handleChange(event) {
-        this.setState({desc: event.target.value});
+        this.setState({text: event.target.value});
       }
     
     handleSubmit(event) {
-        if(this.state.desc!=='Please enter your description here.....' && this.state.title!=="Enter Title")
+        if(this.state.text!=='Please enter your answer here.....'&&this.state.text!=='')
         {
             event.preventDefault();
             let data ={
-                title:this.state.title,
-                description:this.state.desc,
+                text:this.state.text,
             }
-            fetch("http://localhost:8080/questions",{
+            fetch("http://localhost:8080/questions/"+this.props.id+"/answers",{
                 method:'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -41,12 +34,12 @@ class PostQues extends Component {
             .then((response)=>{
                 if(response.ok)
                 {
-                    alert("Question Submitted Successfully!");
-                    return response.json();
+                    alert("     Answer Submitted Successfully!");
+                    this.props.updateSuccess(true);
                 }
                 else
                 {
-                    alert("some error!");
+                    alert("     An error occurred !\n    Please try again later");
                 }
             })
             .catch(error => console.log(error));
@@ -54,24 +47,22 @@ class PostQues extends Component {
         }
         else
         {
-            alert("Please enter all the fields");
+            alert("     Please enter an answer before submitting!");
             event.preventDefault();
         }
     }
 
     render() { 
-        return ( 
-            <div>
+        console.log(this.props.id);
+        return (<div>
             <form>
             <span className="container">
-                <input className="form-control mr-sm-2 m-2" type="text"  placeholder={this.state.title}  onChange={this.handleTitleChange}/>
-                <textarea className="form-control mr-sm-2 m-2" placeholder={this.state.desc} onChange={this.handleChange} style={{height:200}} /><br/>
+                <textarea className="form-control mr-sm-2 m-2" placeholder={this.state.text} onChange={this.handleChange} style={{height:200}} /><br/>
                 <button className="btn btn-info sm-2 m-2" onClick={this.handleSubmit}>Submit</button>
                 </span>
             </form>
-            </div>
-        );
+        </div>  );
     }
 }
  
-export default PostQues;
+export default AnswerForm;

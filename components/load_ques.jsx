@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
+import AnswerForm from './ans_form';
+import EditAnsForm from './edit_ans'
 
 class LoadQuestion extends Component {
     state = { 
         question:{},
         isQuesLoaded:false,
         isAnsLoaded:false,
+        isAnswerClicked:false,
+        EditId:0,
         ans:[],
      }
 
@@ -41,12 +45,57 @@ class LoadQuestion extends Component {
         
     }
 
+    handleAnswer=()=>{
+        this.setState(
+            {
+                isAnswerClicked:true,
+            }
+        )
+    }
+
     componentDidMount()
     {
         this.fetchQues();
         this.fetchAns(); 
     }
     
+    post_successful=()=>
+    {
+        this.fetchAns();
+        this.setState({
+            isAnswerClicked:false,
+            EditId:0,
+        })
+       
+    }
+
+    onCancel(item){
+        console.log("status ok",item.id);
+        fetch("http://localhost:8080/questions/"+this.props.id+"/answers/"+item.id,{
+                method:'DELETE',
+            })
+            .then((response)=>{
+                if(response.ok)
+                {
+                    alert("     Answer Deleted Successfully!");
+                    this.fetchAns();
+                }
+                else
+                {
+                    alert("     An error occurred !\n    Please try again later");
+                }
+            })
+            .catch(error => console.log(error));
+    }
+
+    onEdit(item)
+    {
+        console.log(item);
+        this.setState({
+            EditId:item,
+        })
+    }
+
     render() { 
         if(!this.state.isQuesLoaded&&!this.state.isAnsLoaded)
         {
@@ -64,19 +113,30 @@ class LoadQuestion extends Component {
                                 return (
                                     <span key={index} className="container" style={{width:"100%"}}>
                                     {p.text}
-                                    <button className="btn btn-default sm-2 m-2">
+                                    <button className="badge badge-pill badge-dark m-2" 
+                                    onClick={() =>{this.onEdit(p.id)}}>
                                     Edit
                                     </button>
-                                    <button className="btn btn-danger sm-2 m-2">
+                                    <button className="badge badge-pill badge-danger m-2" onClick={() => { if (window.confirm('Are you sure you wish to delete this answer?')) this.onCancel(p) } }>
                                     Delete
                                     </button>
+                                    {(p.id===this.state.EditId)?
+                                    <EditAnsForm 
+                                        answer_id ={p.id} 
+                                        text={p.text} 
+                                        question_id={this.props.id} 
+                                        updateSuccess={this.post_successful}/>:null
+                                    }
                                     <br/>
                                     </span>
                                 );  
                             })  
                         }  
                     </div>
-                    <button className="btn btn-large btn-warning">Add New Answer</button>
+                    <br/><br/>
+                    <button onClick={this.handleAnswer} className="btn btn-large btn-warning">Add New Answer</button>
+                    {this.state.isAnswerClicked?<AnswerForm  id = {this.props.id} updateSuccess={this.post_successful}/>:null }
+    
                 </div>
             );
         }
